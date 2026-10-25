@@ -23,6 +23,7 @@ import {
 	getSelfUpdateCommand,
 	getSelfUpdateUnavailableInstruction,
 	PACKAGE_NAME,
+	SELF_UPDATE_ENABLED,
 	type SelfUpdateCommand,
 	type SelfUpdatePackageTarget,
 	VERSION,
@@ -292,7 +293,9 @@ function getPackageCommandUsage(command: PackageCommand): string {
 		case "remove":
 			return `${APP_NAME} remove <source> [-l] [--approve|--no-approve]`;
 		case "update":
-			return `${APP_NAME} update [source|self|pi] [--self|--extensions|--models|--all] [--extension <source>] [--approve|--no-approve] [--force]`;
+			return SELF_UPDATE_ENABLED
+				? `${APP_NAME} update [source|self|pi] [--self|--extensions|--models|--all] [--extension <source>] [--approve|--no-approve] [--force]`
+				: `${APP_NAME} update [source] [--extensions|--models] [--extension <source>] [--approve|--no-approve]`;
 		case "list":
 			return `${APP_NAME} list [--approve|--no-approve]`;
 	}
@@ -356,30 +359,39 @@ Examples:
 `);
 			return;
 
-		case "update":
+		case "update": {
+			const selfTargetName = APP_NAME === "pi" ? "Pi" : "this application";
+			const forkUpdateNote = SELF_UPDATE_ENABLED
+				? ""
+				: "\nApplication updates are managed through maintainer-reviewed source updates. Use --extensions or --models to update installed packages or model catalogs.\n";
+			const selfOption = SELF_UPDATE_ENABLED
+				? `  --self                  Update ${selfTargetName} only (default when no target is given)\n`
+				: "";
+			const allOption = SELF_UPDATE_ENABLED
+				? `  --all                   Update ${selfTargetName} and installed packages\n`
+				: "";
 			console.log(`${chalk.bold("Usage:")}
   ${getPackageCommandUsage("update")}
 
-Update pi, installed packages, or model catalogs.
+${SELF_UPDATE_ENABLED ? `Update ${selfTargetName}, installed packages, or model catalogs.` : "Update installed packages or model catalogs."}
+${forkUpdateNote}
 
 Options:
-  --self                  Update pi only (default when no target is given)
-  --extensions            Update installed packages only
+${selfOption}  --extensions            Update installed packages only
   --models                Refresh model catalogs only
-  --all                   Update pi and installed packages
-  --extension <source>    Update one package only
+${allOption}  --extension <source>    Update one package only
   -a, --approve           Trust project-local files for this command
   -na, --no-approve       Ignore project-local files for this command
-  --force                 Reinstall pi even if the current version is latest
+${SELF_UPDATE_ENABLED ? `  --force                 Reinstall ${selfTargetName} even if the current version is latest\n` : ""}
 
 Short forms:
-  ${APP_NAME} update                Update pi only
-  ${APP_NAME} update --all          Update pi and all extensions
+${SELF_UPDATE_ENABLED ? `  ${APP_NAME} update                Update ${selfTargetName} only\n  ${APP_NAME} update --all          Update ${selfTargetName} and all extensions\n` : ""}
   ${APP_NAME} update --models       Refresh model catalogs only
   ${APP_NAME} update <source>       Update one package
-  ${APP_NAME} update pi             Update pi only (self works as alias to pi)
+${SELF_UPDATE_ENABLED ? `  ${APP_NAME} update pi             Update pi only (self works as alias to pi)\n` : ""}
 `);
 			return;
+		}
 
 		case "list":
 			console.log(`${chalk.bold("Usage:")}
@@ -934,6 +946,20 @@ export async function handlePackageCommand(
 	if ((options.command === "install" || options.command === "remove") && !source) {
 		console.error(chalk.red(`Missing ${options.command} source.`));
 		console.error(chalk.dim(`Usage: ${getPackageCommandUsage(options.command)}`));
+		process.exitCode = 1;
+		return true;
+	}
+
+	if (
+		options.command === "update" &&
+		!SELF_UPDATE_ENABLED &&
+		updateTargetIncludesSelf(options.updateTarget ?? { type: "self" })
+	) {
+		console.error(
+			chalk.red(
+				"Application self-updates are disabled; updates are managed through maintainer-reviewed source updates.",
+			),
+		);
 		process.exitCode = 1;
 		return true;
 	}

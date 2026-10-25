@@ -1,15 +1,68 @@
+import { execFileSync } from "node:child_process";
 import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
 import { delimiter, join } from "path";
 import { afterEach, describe, expect, test } from "vitest";
 import {
+	APP_NAME,
+	APP_TITLE,
+	CONFIG_DIR_NAME,
 	detectInstallChange,
 	detectInstallMethod,
 	findNodePackageDir,
 	getSelfUpdateCommand,
 	getSelfUpdateUnavailableInstruction,
 	getUpdateInstruction,
+	SELF_UPDATE_ENABLED,
 } from "../src/config.ts";
+
+describe("application identity", () => {
+	test("uses the Mantis command and configuration directory", () => {
+		expect(APP_NAME).toBe("mantis");
+		expect(APP_TITLE).toBe("Mantis");
+		expect(CONFIG_DIR_NAME).toBe(".mantis");
+		expect(SELF_UPDATE_ENABLED).toBe(false);
+	});
+
+	test("uses generic identity and self-update defaults from package metadata", () => {
+		tempDir = mkdtempSync(join(tmpdir(), "pi-config-metadata-"));
+		const packageDir = join(tempDir, "package");
+		mkdirSync(packageDir);
+		const scriptPath = join(tempDir, "read-config.mjs");
+		writeFileSync(
+			scriptPath,
+			`import { APP_NAME, APP_TITLE, SELF_UPDATE_ENABLED } from ${JSON.stringify(new URL("../src/config.ts", import.meta.url).href)};\nconsole.log(JSON.stringify({ APP_NAME, APP_TITLE, SELF_UPDATE_ENABLED }));\n`,
+		);
+
+		const readIdentity = (metadata: object) => {
+			writeFileSync(join(packageDir, "package.json"), JSON.stringify(metadata));
+			return JSON.parse(
+				execFileSync(process.execPath, [scriptPath], {
+					encoding: "utf8",
+					env: { PATH: process.env.PATH, PI_PACKAGE_DIR: packageDir },
+				}),
+			) as { APP_NAME: string; APP_TITLE: string; SELF_UPDATE_ENABLED: boolean };
+		};
+
+		expect(readIdentity({ name: "@earendil-works/pi-coding-agent" })).toEqual({
+			APP_NAME: "pi",
+			APP_TITLE: "π",
+			SELF_UPDATE_ENABLED: true,
+		});
+		expect(readIdentity({ name: "@example/agent", piConfig: { name: "custom" } })).toEqual({
+			APP_NAME: "custom",
+			APP_TITLE: "custom",
+			SELF_UPDATE_ENABLED: true,
+		});
+		expect(
+			readIdentity({ name: "@example/agent", piConfig: { name: "mantis", title: "Mantis", selfUpdate: false } }),
+		).toEqual({
+			APP_NAME: "mantis",
+			APP_TITLE: "Mantis",
+			SELF_UPDATE_ENABLED: false,
+		});
+	});
+});
 
 const execPathDescriptor = Object.getOwnPropertyDescriptor(process, "execPath");
 const originalPath = process.env.PATH;

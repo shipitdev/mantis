@@ -12,6 +12,7 @@ concurrency:
 
 jobs:
   build-check-test:
+    if: github.repository == 'earendil-works/pi'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -45,6 +46,7 @@ jobs:
         run: npm test
 
   mcp-conformance:
+    if: github.repository == 'earendil-works/pi'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

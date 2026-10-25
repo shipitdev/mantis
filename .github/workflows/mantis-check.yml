@@ -1,0 +1,65 @@
+name: Mantis Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Branch, tag, or commit to validate
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev fd-find ripgrep
+          sudo ln -s "$(which fdfind)" /usr/local/bin/fd
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Hydrate the pinned model catalog
+        run: node mantis-layer/hydrate-models.mjs
+
+      - name: Check upstream boundary
+        run: node mantis-layer/check-upstream.mjs
+
+      - name: Check project
+        run: npm run check
+
+      - name: Run focused tests
+        run: |
+          node --test mantis-layer/*.test.mjs
+          cd packages/coding-agent
+          node ../../node_modules/vitest/dist/cli.js --run \
+            test/config.test.ts \
+            test/system-prompt.test.ts \
+            test/package-command-paths.test.ts \
+            test/args.test.ts \
+            test/interactive-mode-startup-input.test.ts \
+            test/session-share.test.ts \
+            test/export-jsonl-share.test.ts

@@ -1,0 +1,164 @@
+name: Mantis Upstream Sync Report
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Stable upstream Pi release tag (vN.N.N)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Validate release tag
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+          SYNC_REPORT_DIR: ${{ runner.temp }}/mantis-sync-report
+        run: |
+          mkdir -p "$SYNC_REPORT_DIR"
+          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            printf '# Mantis upstream sync report\n\nInvalid release tag: %s\n' "$RELEASE_TAG" > "$SYNC_REPORT_DIR/sync-report.md"
+            printf '{"success":false,"error":"invalid release tag"}\n' > "$SYNC_REPORT_DIR/status.txt"
+            : > "$SYNC_REPORT_DIR/candidate.diff"
+            : > "$SYNC_REPORT_DIR/checks.log"
+            echo "Expected a stable vN.N.N release tag" >&2
+            exit 1
+          fi
+
+      - name: Checkout Mantis source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+
+      - name: Create sync report
+        id: sync
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+          SYNC_REPORT_DIR: ${{ runner.temp }}/mantis-sync-report
+        run: node mantis-layer/sync-upstream.mjs --tag "$RELEASE_TAG"
+
+      - name: Set candidate paths
+        id: candidate
+        if: steps.sync.outcome == 'success'
+        env:
+          SYNC_REPORT_DIR: ${{ runner.temp }}/mantis-sync-report
+        run: |
+          echo "path=$(node -p 'require(process.env.SYNC_REPORT_DIR + "/sync.json").candidate')" >> "$GITHUB_OUTPUT"
+          echo "upstream_base=$(node -p 'require(process.env.SYNC_REPORT_DIR + "/sync.json").tagSha')" >> "$GITHUB_OUTPUT"
+
+      - name: Install candidate system dependencies
+        if: steps.sync.outcome == 'success'
+        env:
+          SYNC_REPORT_DIR: ${{ runner.temp }}/mantis-sync-report
+        run: |
+          set -o pipefail
+          sudo apt-get update
+          sudo apt-get install -y libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev fd-find ripgrep 2>&1 | tee -a "$SYNC_REPORT_DIR/checks.log"
+          sudo ln -s "$(which fdfind)" /usr/local/bin/fd
+
+      - name: Install candidate dependencies
+        id: install
+        if: steps.sync.outcome == 'success'
+        working-directory: ${{ steps.candidate.outputs.path }}
+        env:
+          SYNC_REPORT_DIR: ${{ runner.temp }}/mantis-sync-report
+        run: |
+          set -o pipefail
+          npm ci --ignore-scripts 2>&1 | tee -a "$SYNC_REPORT_DIR/checks.log"
+
+      - name: Check candidate upstream boundary
+        id: boundary
+        if: steps.sync.outcome == 'success'
+        working-directory: ${{ steps.candidate.outputs.path }}
+        env:
+          UPSTREAM_BASE: ${{ steps.candidate.outputs.upstream_base }}
+          SYNC_REPORT_DIR: ${{ runner.temp }}/mantis-sync-report
+        run: |
+          set -o pipefail
+          node mantis-layer/check-upstream.mjs --base "$UPSTREAM_BASE" 2>&1 | tee -a "$SYNC_REPORT_DIR/checks.log"
+
+      - name: Hydrate candidate pinned model catalog
+        id: hydrate
+        if: steps.sync.outcome == 'success'
+        working-directory: ${{ steps.candidate.outputs.path }}
+        env:
+          SYNC_REPORT_DIR: ${{ runner.temp }}/mantis-sync-report
+        run: |
+          set -o pipefail
+          node mantis-layer/hydrate-models.mjs 2>&1 | tee -a "$SYNC_REPORT_DIR/checks.log"
+
+      - name: Check candidate
+        id: check
+        if: steps.sync.outcome == 'success'
+        working-directory: ${{ steps.candidate.outputs.path }}
+        env:
+          SYNC_REPORT_DIR: ${{ runner.temp }}/mantis-sync-report
+        run: |
+          set -o pipefail
+          npm run check 2>&1 | tee -a "$SYNC_REPORT_DIR/checks.log"
+
+      - name: Run focused candidate tests
+        id: tests
+        if: steps.sync.outcome == 'success'
+        working-directory: ${{ steps.candidate.outputs.path }}
+        env:
+          SYNC_REPORT_DIR: ${{ runner.temp }}/mantis-sync-report
+        run: |
+          set -o pipefail
+          node --test mantis-layer/*.test.mjs 2>&1 | tee -a "$SYNC_REPORT_DIR/checks.log"
+          cd packages/coding-agent
+          node ../../node_modules/vitest/dist/cli.js --run \
+            test/config.test.ts \
+            test/system-prompt.test.ts \
+            test/package-command-paths.test.ts \
+            test/args.test.ts \
+            test/interactive-mode-startup-input.test.ts \
+            test/session-share.test.ts \
+            test/export-jsonl-share.test.ts 2>&1 | tee -a "$SYNC_REPORT_DIR/checks.log"
+
+      - name: Record candidate check results
+        if: always()
+        env:
+          SYNC_RESULT: ${{ steps.sync.outcome }}
+          BOUNDARY_RESULT: ${{ steps.boundary.outcome }}
+          INSTALL_RESULT: ${{ steps.install.outcome }}
+          HYDRATE_RESULT: ${{ steps.hydrate.outcome }}
+          CHECK_RESULT: ${{ steps.check.outcome }}
+          TEST_RESULT: ${{ steps.tests.outcome }}
+          SYNC_REPORT_DIR: ${{ runner.temp }}/mantis-sync-report
+        run: |
+          mkdir -p "$SYNC_REPORT_DIR"
+          {
+            echo "Sync: ${SYNC_RESULT:-not run}"
+            echo "Boundary: ${BOUNDARY_RESULT:-not run}"
+            echo "Install: ${INSTALL_RESULT:-not run}"
+            echo "Hydrate: ${HYDRATE_RESULT:-not run}"
+            echo "Check: ${CHECK_RESULT:-not run}"
+            echo "Tests: ${TEST_RESULT:-not run}"
+          } > "$SYNC_REPORT_DIR/checks-summary.txt"
+
+      - name: Upload report and candidate diff
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: mantis-upstream-sync-${{ inputs.tag }}
+          path: |
+            ${{ runner.temp }}/mantis-sync-report/sync-report.md
+            ${{ runner.temp }}/mantis-sync-report/status.txt
+            ${{ runner.temp }}/mantis-sync-report/candidate.diff
+            ${{ runner.temp }}/mantis-sync-report/checks.log
+            ${{ runner.temp }}/mantis-sync-report/checks-summary.txt
+          if-no-files-found: warn
+          retention-days: 14

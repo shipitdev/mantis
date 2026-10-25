@@ -25,6 +25,7 @@ jobs:
   # Keep the public GitHub Release publication last. Binary assets are staged in
   # a draft release first; cleanup removes the draft if later publishing fails.
   build:
+    if: github.repository == 'earendil-works/pi'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -129,6 +130,7 @@ jobs:
           retention-days: 14
 
   smoke-test-binaries:
+    if: github.repository == 'earendil-works/pi'
     runs-on: ${{ matrix.runner }}
     needs: build
     strategy:
@@ -208,6 +210,7 @@ jobs:
           node scripts/smoke-test-codemode-binary.mjs "${{ steps.binary.outputs.binary }}"
 
   stage-github-release:
+    if: github.repository == 'earendil-works/pi'
     runs-on: ubuntu-latest
     needs:
       - build
@@ -303,6 +306,7 @@ jobs:
 
   # The pi-env daemon for every remote system @earendil-works/pi-env supports; the npm package ships them all.
   env-daemons:
+    if: github.repository == 'earendil-works/pi'
     uses: ./.github/workflows/env-daemons.yml
     permissions:
       contents: read
@@ -310,6 +314,7 @@ jobs:
       ref: ${{ github.event.inputs.source_ref || github.event.inputs.tag || github.ref_name }}
 
   publish-npm:
+    if: github.repository == 'earendil-works/pi'
     runs-on: ubuntu-latest
     needs: [stage-github-release, env-daemons]
     environment: npm-publish
@@ -387,6 +392,7 @@ jobs:
         run: node scripts/publish.mjs
 
   announce-pi-dev-release:
+    if: github.repository == 'earendil-works/pi'
     runs-on: ubuntu-latest
     needs: publish-npm
     environment: pi-model-upload
@@ -428,6 +434,7 @@ jobs:
             --installer-package-lock packages/coding-agent/install-lock/package-lock.json
 
   publish-github-release:
+    if: github.repository == 'earendil-works/pi'
     runs-on: ubuntu-latest
     needs:
       - stage-github-release
@@ -465,7 +472,7 @@ jobs:
       - publish-npm
       - announce-pi-dev-release
       - publish-github-release
-    if: ${{ always() && needs.stage-github-release.result != 'skipped' && (needs.stage-github-release.result != 'success' || needs.publish-npm.result != 'success' || needs.announce-pi-dev-release.result != 'success' || needs.publish-github-release.result != 'success') }}
+    if: ${{ github.repository == 'earendil-works/pi' && always() && needs.stage-github-release.result != 'skipped' && (needs.stage-github-release.result != 'success' || needs.publish-npm.result != 'success' || needs.announce-pi-dev-release.result != 'success' || needs.publish-github-release.result != 'success') }}
     permissions:
       contents: write
     env:

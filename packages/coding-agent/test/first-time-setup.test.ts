@@ -3,7 +3,7 @@ import { tmpdir } from "os";
 import { join } from "path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { shouldRunFirstTimeSetup } from "../src/cli/startup-ui.ts";
-import { ENV_AGENT_DIR } from "../src/config.ts";
+import { APP_NAME, CONFIG_DIR_NAME, ENV_AGENT_DIR } from "../src/config.ts";
 import { SettingsManager } from "../src/core/settings-manager.ts";
 
 describe("shouldRunFirstTimeSetup", () => {
@@ -13,7 +13,7 @@ describe("shouldRunFirstTimeSetup", () => {
 	let settingsPath: string;
 
 	beforeEach(() => {
-		tempDir = mkdtempSync(join(tmpdir(), "pi-first-time-setup-"));
+		tempDir = mkdtempSync(join(tmpdir(), `${APP_NAME}-first-time-setup-`));
 		settingsPath = join(tempDir, "settings.json");
 		process.env.PI_EXPERIMENTAL = "1";
 		delete process.env[ENV_AGENT_DIR];
@@ -33,8 +33,8 @@ describe("shouldRunFirstTimeSetup", () => {
 		}
 	});
 
-	it("returns true when experimental, default agent dir, and no settings.json", () => {
-		expect(shouldRunFirstTimeSetup(settingsPath)).toBe(true);
+	it("runs only for the official distribution when experimental, default agent dir, and no settings.json", () => {
+		expect(shouldRunFirstTimeSetup(settingsPath)).toBe(APP_NAME === "pi" && CONFIG_DIR_NAME === ".pi");
 	});
 
 	it("returns false when experimental features are disabled", () => {

@@ -9,7 +9,6 @@
 
 import { type Static, type TProperties, Type } from "typebox";
 import { Compile } from "typebox/compile";
-import { APP_TITLE } from "../../../config.ts";
 import { THEME_TOKENS, type ThemeColorValues, type ThemeTokenDescriptors } from "./theme-tokens.ts";
 
 function colorValue(description?: string) {
@@ -84,8 +83,8 @@ export const ThemeJsonSchema = Type.Object(
 		),
 	},
 	{
-		title: `${APP_TITLE} Theme`,
-		description: `Theme schema for ${APP_TITLE}`,
+		title: "Pi Coding Agent Theme",
+		description: "Theme schema for Pi coding agent",
 		additionalProperties: false,
 	},
 );

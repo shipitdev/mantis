@@ -41,7 +41,19 @@
     "packages/coding-agent/test/package-manager.test.ts": "Test package behavior with the configured command and config directory",
     "packages/coding-agent/test/program-status-reporter.test.ts": "Verify the configured application name and resource folder",
     "packages/coding-agent/test/resource-loader.test.ts": "Verify the configured application name and resource folder",
-    "packages/coding-agent/test/system-prompt.test.ts": "Tests for Mantis system prompt branding"
+    "packages/coding-agent/test/session-file-invalid.test.ts": "Keep runtime fixture paths and assertions aligned with configured application identity",
+    "packages/coding-agent/test/session-manager/file-operations.test.ts": "Keep runtime fixture paths and assertions aligned with configured application identity",
+    "packages/coding-agent/test/settings-manager-bug.test.ts": "Keep runtime fixture paths and assertions aligned with configured application identity",
+    "packages/coding-agent/test/settings-manager.test.ts": "Keep runtime fixture paths and assertions aligned with configured application identity",
+    "packages/coding-agent/test/stdout-cleanliness.test.ts": "Keep runtime fixture paths and assertions aligned with configured application identity",
+    "packages/coding-agent/test/suite/agent-session-mcp-oauth.test.ts": "Keep runtime fixture paths and assertions aligned with configured application identity",
+    "packages/coding-agent/test/suite/regressions/2781-skill-collision-precedence.test.ts": "Keep runtime fixture paths and assertions aligned with configured application identity",
+    "packages/coding-agent/test/suite/regressions/2791-fswatch-error-crash.test.ts": "Keep runtime fixture paths and assertions aligned with configured application identity",
+    "packages/coding-agent/test/suite/regressions/8337-utf8-bom-parsing.test.ts": "Keep runtime fixture paths and assertions aligned with configured application identity",
+    "packages/coding-agent/test/system-prompt.test.ts": "Tests for Mantis system prompt branding",
+    "packages/coding-agent/test/theme-export.test.ts": "Keep runtime fixture paths and assertions aligned with configured application identity",
+    "packages/coding-agent/test/theme-picker.test.ts": "Keep runtime fixture paths and assertions aligned with configured application identity",
+    "packages/coding-agent/test/trust-manager.test.ts": "Keep runtime fixture paths and assertions aligned with configured application identity"
   },
   "allowedNewPaths": [
     "mantis",

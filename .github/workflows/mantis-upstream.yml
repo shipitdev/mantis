@@ -128,6 +128,18 @@ jobs:
             test/session-share.test.ts \
             test/export-jsonl-share.test.ts \
             test/config-schemas.test.ts \
+            test/session-file-invalid.test.ts \
+            test/session-manager/file-operations.test.ts \
+            test/settings-manager-bug.test.ts \
+            test/settings-manager.test.ts \
+            test/stdout-cleanliness.test.ts \
+            test/suite/agent-session-mcp-oauth.test.ts \
+            test/suite/regressions/2781-skill-collision-precedence.test.ts \
+            test/suite/regressions/2791-fswatch-error-crash.test.ts \
+            test/suite/regressions/8337-utf8-bom-parsing.test.ts \
+            test/theme-export.test.ts \
+            test/theme-picker.test.ts \
+            test/trust-manager.test.ts \
             test/package-distribution.test.ts \
             test/package-manager.test.ts \
             test/resource-loader.test.ts \

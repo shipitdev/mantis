@@ -1,6 +1,6 @@
 # Mantis
 
-Mantis is a thin, model-flexible fork of [Pi](https://github.com/earendil-works/pi), currently based on Pi v1.4.0. It preserves Pi's package identities and APIs, and uses Pi's MIT license ([LICENSE](LICENSE)). The source is maintained at [shipitdev/mantis](https://github.com/shipitdev/mantis).
+Mantis is a thin, model-flexible fork of [Pi](https://github.com/earendil-works/pi), based on Pi v1.4.0 with upstream changes through commit `ede2c9b46`. It preserves Pi's package identities and APIs, and uses Pi's MIT license ([LICENSE](LICENSE)). The source is maintained at [shipitdev/mantis](https://github.com/shipitdev/mantis).
 
 ## Run from source
 

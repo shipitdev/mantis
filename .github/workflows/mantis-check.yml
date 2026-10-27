@@ -61,4 +61,10 @@ jobs:
             test/args.test.ts \
             test/interactive-mode-startup-input.test.ts \
             test/session-share.test.ts \
-            test/export-jsonl-share.test.ts
+            test/export-jsonl-share.test.ts \
+            test/config-schemas.test.ts \
+            test/mcp-extension.test.ts \
+            test/mcp-command.test.ts \
+            test/interactive-mode-bug-report-hint.test.ts \
+            test/first-time-setup.test.ts \
+            test/credential-print.test.ts

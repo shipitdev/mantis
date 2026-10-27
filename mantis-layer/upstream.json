@@ -15,6 +15,7 @@
     ".github/workflows/remove-inprogress-on-close.yml": "Keep upstream issue label automation upstream-only",
     "README.md": "Mantis branding and project-specific usage notes",
     "package-lock.json": "Mantis executable metadata; upstream package names and dependency versions are preserved",
+    "packages/ai/test/cache-retention.test.ts": "Accept the published DeepSeek Flash model rename without removing cache assertions",
     "packages/coding-agent/install-lock/package-lock.json": "Mantis executable metadata in the standalone install lock",
     "packages/coding-agent/package.json": "Mantis executable, title, config directory, and disabled self-update policy",
     "packages/coding-agent/src/cli/args.ts": "Mantis CLI branding and options",
@@ -34,6 +35,8 @@
     "packages/coding-agent/test/mcp-command.test.ts": "Keep provider, tool, and UI tests valid for the configured application identity",
     "packages/coding-agent/test/mcp-extension.test.ts": "Keep provider, tool, and UI tests valid for the configured application identity",
     "packages/coding-agent/test/package-command-paths.test.ts": "Tests for Mantis package commands",
+    "packages/coding-agent/test/package-distribution.test.ts": "Test package behavior with the configured command and config directory",
+    "packages/coding-agent/test/package-manager.test.ts": "Test package behavior with the configured command and config directory",
     "packages/coding-agent/test/system-prompt.test.ts": "Tests for Mantis system prompt branding"
   },
   "allowedNewPaths": [

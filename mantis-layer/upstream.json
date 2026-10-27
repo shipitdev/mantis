@@ -1,7 +1,7 @@
 {
   "repository": "earendil-works/pi",
   "version": "1.4.0",
-  "commit": "4a080252f06caf63a525d7873c5d94d3c23887e0",
+  "commit": "ede2c9b468d8e061c557d16957513715e6d49cd6",
   "allowedModifiedPaths": {
     ".github/workflows/approve-contributor.yml": "Keep upstream contributor approval automation upstream-only",
     ".github/workflows/build-binaries.yml": "Prevent upstream release and npm publishing jobs from running in this fork",
@@ -11,10 +11,12 @@
     ".github/workflows/issue-triage-labels.yml": "Keep upstream issue labels and triage automation upstream-only",
     ".github/workflows/nix.yml": "Prevent inherited stable and main branch writers from changing this fork",
     ".github/workflows/pr-gate.yml": "Keep upstream contributor PR closing rules upstream-only",
+    ".github/workflows/preview-packages.yml": "Restrict inherited preview publishing and cleanup to the upstream repository",
     ".github/workflows/publish-model-catalog.yml": "Prevent publishing to upstream model catalog infrastructure",
     ".github/workflows/remove-inprogress-on-close.yml": "Keep upstream issue label automation upstream-only",
     "README.md": "Mantis branding and project-specific usage notes",
     "package-lock.json": "Mantis executable metadata; upstream package names and dependency versions are preserved",
+    "packages/ai/scripts/generate-models.ts": "Apply the existing unsupported long-cache rule to the renamed DeepSeek Flash model",
     "packages/ai/test/cache-retention.test.ts": "Accept the published DeepSeek Flash model rename without removing cache assertions",
     "packages/coding-agent/install-lock/package-lock.json": "Mantis executable metadata in the standalone install lock",
     "packages/coding-agent/package.json": "Mantis executable, title, config directory, and disabled self-update policy",
@@ -37,6 +39,8 @@
     "packages/coding-agent/test/package-command-paths.test.ts": "Tests for Mantis package commands",
     "packages/coding-agent/test/package-distribution.test.ts": "Test package behavior with the configured command and config directory",
     "packages/coding-agent/test/package-manager.test.ts": "Test package behavior with the configured command and config directory",
+    "packages/coding-agent/test/program-status-reporter.test.ts": "Verify the configured application name and resource folder",
+    "packages/coding-agent/test/resource-loader.test.ts": "Verify the configured application name and resource folder",
     "packages/coding-agent/test/system-prompt.test.ts": "Tests for Mantis system prompt branding"
   },
   "allowedNewPaths": [

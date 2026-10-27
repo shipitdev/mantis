@@ -130,6 +130,8 @@ jobs:
             test/config-schemas.test.ts \
             test/package-distribution.test.ts \
             test/package-manager.test.ts \
+            test/resource-loader.test.ts \
+            test/program-status-reporter.test.ts \
             test/mcp-extension.test.ts \
             test/mcp-command.test.ts \
             test/interactive-mode-bug-report-hint.test.ts \

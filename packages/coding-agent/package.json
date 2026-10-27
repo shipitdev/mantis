@@ -4,10 +4,13 @@
 	"description": "Coding agent CLI with read, bash, edit, write tools and session management",
 	"type": "module",
 	"piConfig": {
-		"configDir": ".pi"
+		"name": "mantis",
+		"title": "Mantis",
+		"configDir": ".mantis",
+		"selfUpdate": false
 	},
 	"bin": {
-		"pi": "dist/bundle/cli.js"
+		"mantis": "dist/bundle/cli.js"
 	},
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",

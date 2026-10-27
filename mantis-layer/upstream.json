@@ -25,6 +25,7 @@
     "packages/coding-agent/src/config.ts": "Generic display title and self-update metadata settings",
     "packages/coding-agent/src/core/resource-loader.ts": "Use configured command name in resource diagnostics",
     "packages/coding-agent/src/core/system-prompt.ts": "Mantis system prompt branding",
+    "packages/coding-agent/src/index.ts": "Expose the configured agent-directory variable for evaluation isolation",
     "packages/coding-agent/src/modes/interactive/components/first-time-setup.ts": "Mantis first-run branding",
     "packages/coding-agent/src/modes/interactive/components/settings-selector.ts": "Mantis settings branding",
     "packages/coding-agent/src/modes/interactive/interactive-mode.ts": "Mantis interactive UI branding",
@@ -53,7 +54,9 @@
     "packages/coding-agent/test/system-prompt.test.ts": "Tests for Mantis system prompt branding",
     "packages/coding-agent/test/theme-export.test.ts": "Keep runtime fixture paths and assertions aligned with configured application identity",
     "packages/coding-agent/test/theme-picker.test.ts": "Keep runtime fixture paths and assertions aligned with configured application identity",
-    "packages/coding-agent/test/trust-manager.test.ts": "Keep runtime fixture paths and assertions aligned with configured application identity"
+    "packages/coding-agent/test/trust-manager.test.ts": "Keep runtime fixture paths and assertions aligned with configured application identity",
+    "packages/evals/src/harness.ts": "Use the configured agent directory and brand-independent documentation markers",
+    "packages/evals/test/harness.test.ts": "Verify documentation detection and configured agent-directory isolation"
   },
   "allowedNewPaths": [
     "mantis",

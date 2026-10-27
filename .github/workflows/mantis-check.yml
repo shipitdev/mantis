@@ -87,3 +87,5 @@ jobs:
             test/interactive-mode-bug-report-hint.test.ts \
             test/first-time-setup.test.ts \
             test/credential-print.test.ts
+          cd ../evals
+          node ../../node_modules/vitest/dist/cli.js --run --config vitest.test.config.ts

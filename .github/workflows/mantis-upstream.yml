@@ -159,6 +159,8 @@ jobs:
             test/interactive-mode-bug-report-hint.test.ts \
             test/first-time-setup.test.ts \
             test/credential-print.test.ts 2>&1 | tee -a "$SYNC_REPORT_DIR/checks.log"
+          cd ../evals
+          node ../../node_modules/vitest/dist/cli.js --run --config vitest.test.config.ts 2>&1 | tee -a "$SYNC_REPORT_DIR/checks.log"
 
       - name: Record candidate check results
         if: always()

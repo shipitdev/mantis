@@ -20,6 +20,16 @@ Mantis is in development. Its command is `mantis`; additional harness capabiliti
 
 Pi provides the agent, tools, providers, and sessions. Mantis uses the existing UI and reads its name, display title, config directory, and self-update policy from package metadata. Future Mantis features belong in separate extension files under `mantis-layer/` rather than another copy of Pi's core.
 
+The exact upstream source commit and the intentional changes to Pi-owned files are recorded in [mantis-layer/upstream.json](mantis-layer/upstream.json). Check the boundary with:
+
+```bash
+node mantis-layer/check-upstream.mjs
+```
+
+This checks changed file paths, not API compatibility or correctness. The Mantis CI checks the combined application. Its manually triggered **Mantis Upstream Sync Report** workflow tries a selected stable Pi tag in a disposable checkout and retains the diff, conflicts, and check results. It does not commit, push, merge into the integration branch, or publish.
+
+After accepting an upstream update, record its version and exact commit in `mantis-layer/upstream.json`, review the remaining patch list, and rerun the checks before committing.
+
 ## Development
 
 The Nix build uses the catalog revision pinned in [nix/model-catalog.json](nix/model-catalog.json). For source updates, use reviewed changes from the [Mantis fork](https://github.com/shipitdev/mantis). The [Pi project](https://github.com/earendil-works/pi) remains the upstream foundation.

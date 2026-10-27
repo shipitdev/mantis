@@ -12,6 +12,7 @@ import {
 	type CreateAgentSessionOptions,
 	createAgentSessionFromServices,
 	createAgentSessionServices,
+	ENV_AGENT_DIR,
 	getAgentDir,
 	type InlineExtension,
 	ModelRuntime,
@@ -80,7 +81,7 @@ export function resolveModelSelection(
 }
 
 export function applyIsolatedEnvironment(home: string, agentDir: string): () => void {
-	const overrides = { HOME: home, USERPROFILE: home, PI_CODING_AGENT_DIR: agentDir };
+	const overrides = { HOME: home, USERPROFILE: home, [ENV_AGENT_DIR]: agentDir };
 	const previous = new Map<string, string | undefined>();
 	for (const name of Object.keys(process.env)) {
 		if (!name.startsWith("PI_EVAL_")) continue;
@@ -262,7 +263,7 @@ export function verifySystemPrompt(
 	if (!systemPrompt.includes("\n<rules>\n")) {
 		throw new Error(`Pi system prompt lost its rules in the ${options.name} eval variant.`);
 	}
-	const hasDocumentation = systemPrompt.includes("\n<docs>\nPi documentation (read only");
+	const hasDocumentation = systemPrompt.includes("\n<docs>\n");
 	if (hasDocumentation !== options.expectedPiDocumentation) {
 		throw new Error(`Pi system prompt does not match the ${options.name} eval variant.`);
 	}

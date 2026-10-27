@@ -1,6 +1,13 @@
 import { homedir } from "node:os";
-import { getDocsPath, getExamplesPath, getReadmePath } from "@earendil-works/pi-coding-agent";
+import {
+	ENV_AGENT_DIR,
+	getAgentDir,
+	getDocsPath,
+	getExamplesPath,
+	getReadmePath,
+} from "@earendil-works/pi-coding-agent";
 import { describe, expect, it, vi } from "vitest";
+import { APP_TITLE } from "../../coding-agent/src/config.ts";
 import { buildSystemPrompt } from "../../coding-agent/src/core/system-prompt.ts";
 import {
 	applyIsolatedEnvironment,
@@ -42,17 +49,20 @@ describe("isolateProcessEnvironment", () => {
 		vi.stubEnv("PI_EVAL_VARIANT", "with_docs");
 		vi.stubEnv("PI_EVAL_ARTIFACT_DIR", "/tmp/artifacts");
 		const oldHome = process.env.HOME;
+		const oldAgentDir = getAgentDir();
 		try {
 			const restore = applyIsolatedEnvironment("/tmp/eval-home", "/tmp/eval-agent");
 			try {
 				expect(homedir()).toBe("/tmp/eval-home");
-				expect(process.env.PI_CODING_AGENT_DIR).toBe("/tmp/eval-agent");
+				expect(process.env[ENV_AGENT_DIR]).toBe("/tmp/eval-agent");
+				expect(getAgentDir()).toBe("/tmp/eval-agent");
 				expect(process.env.PI_EVAL_VARIANT).toBeUndefined();
 				expect(process.env.PI_EVAL_ARTIFACT_DIR).toBeUndefined();
 			} finally {
 				restore();
 			}
 			expect(process.env.HOME).toBe(oldHome);
+			expect(getAgentDir()).toBe(oldAgentDir);
 			expect(process.env.PI_EVAL_VARIANT).toBe("with_docs");
 		} finally {
 			vi.unstubAllEnvs();
@@ -74,7 +84,7 @@ describe("documentation variant", () => {
 			cwd: "/workspace",
 			selectedTools: [...DOCUMENTATION_EVAL_TOOLS],
 		});
-		expect(prompt).toContain("\n<docs>\nPi documentation (read only");
+		expect(prompt).toContain(`\n<docs>\n${APP_TITLE} documentation (read only`);
 		expect(prompt).toContain("\n<rules>\n");
 		expect(prompt).toContain("\n<cwd>\n/workspace\n</cwd>");
 		expect(prompt).toContain("docs/models.md");
@@ -83,7 +93,7 @@ describe("documentation variant", () => {
 		expect(stripped).toContain("\n<rules>\n");
 		expect(stripped).toContain("\n<cwd>\n/workspace\n</cwd>");
 		expect(stripped).not.toContain("<docs>");
-		expect(stripped).not.toContain("Pi documentation");
+		expect(stripped).not.toContain(`${APP_TITLE} documentation`);
 		expect(stripped).not.toContain("docs/models.md");
 		expect(stripped).not.toContain(getReadmePath());
 		expect(stripped).not.toContain(getDocsPath());

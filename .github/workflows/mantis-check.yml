@@ -44,6 +44,9 @@ jobs:
       - name: Hydrate the pinned model catalog
         run: node mantis-layer/hydrate-models.mjs
 
+      - name: Build with hydrated model data
+        run: npm run build:offline
+
       - name: Check upstream boundary
         run: node mantis-layer/check-upstream.mjs
 

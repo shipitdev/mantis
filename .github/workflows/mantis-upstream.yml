@@ -99,6 +99,16 @@ jobs:
           set -o pipefail
           node mantis-layer/hydrate-models.mjs 2>&1 | tee -a "$SYNC_REPORT_DIR/checks.log"
 
+      - name: Build candidate
+        id: build
+        if: steps.sync.outcome == 'success'
+        working-directory: ${{ steps.candidate.outputs.path }}
+        env:
+          SYNC_REPORT_DIR: ${{ runner.temp }}/mantis-sync-report
+        run: |
+          set -o pipefail
+          npm run build:offline 2>&1 | tee -a "$SYNC_REPORT_DIR/checks.log"
+
       - name: Check candidate
         id: check
         if: steps.sync.outcome == 'success'
@@ -157,6 +167,7 @@ jobs:
           BOUNDARY_RESULT: ${{ steps.boundary.outcome }}
           INSTALL_RESULT: ${{ steps.install.outcome }}
           HYDRATE_RESULT: ${{ steps.hydrate.outcome }}
+          BUILD_RESULT: ${{ steps.build.outcome }}
           CHECK_RESULT: ${{ steps.check.outcome }}
           TEST_RESULT: ${{ steps.tests.outcome }}
           SYNC_REPORT_DIR: ${{ runner.temp }}/mantis-sync-report
@@ -167,6 +178,7 @@ jobs:
             echo "Boundary: ${BOUNDARY_RESULT:-not run}"
             echo "Install: ${INSTALL_RESULT:-not run}"
             echo "Hydrate: ${HYDRATE_RESULT:-not run}"
+            echo "Build: ${BUILD_RESULT:-not run}"
             echo "Check: ${CHECK_RESULT:-not run}"
             echo "Tests: ${TEST_RESULT:-not run}"
           } > "$SYNC_REPORT_DIR/checks-summary.txt"

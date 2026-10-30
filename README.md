@@ -16,6 +16,8 @@ Model-data hydration fetches public provider catalog data; it does not submit pr
 
 Mantis is in development. Its command is `mantis`.
 
+Mantis-specific additions and release notes are recorded in [CHANGELOG.md](CHANGELOG.md).
+
 ## Optional text delegation
 
 Load the first Mantis extension explicitly from this checkout:

@@ -59,6 +59,7 @@
     "packages/evals/test/harness.test.ts": "Verify documentation detection and configured agent-directory isolation"
   },
   "allowedNewPaths": [
+    "CHANGELOG.md",
     "mantis",
     "mantis-layer/",
     ".github/workflows/mantis-"

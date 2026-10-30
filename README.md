@@ -14,7 +14,21 @@ npm run hydrate:model-data
 
 Model-data hydration fetches public provider catalog data; it does not submit prompts or require model credentials. Run `./mantis` from the project directory where you want the agent to work. Configure credentials through the command's login flow or in the private `~/.mantis/agent/` files. Submitting prompts may incur provider charges.
 
-Mantis is in development. Its command is `mantis`; additional harness capabilities are not yet claimed as available.
+Mantis is in development. Its command is `mantis`.
+
+## Optional text delegation
+
+Load the first Mantis extension explicitly from this checkout:
+
+```bash
+./mantis -e ./mantis-layer/extensions/delegate.ts
+```
+
+The lead model gets a `mantis_delegate` tool. It supplies a task and exact configured provider/model IDs, then receives a worker ID and response. It can use that ID for follow-up tasks in the same conversation. The worker has no tools, extensions, skills, or project context files; the lead supplies any relevant text. Pi still includes basic runtime context such as the working-directory path.
+
+This version supports one active worker at a time and waits for its response. Cancelling the call interrupts the worker. Session changes, tree navigation, reload and exit release the worker; its saved history remains, but its handle cannot automatically be resumed. Providers registered only by another extension are not inherited. Ordinary provider credentials remain managed by Pi. Worker requests may incur charges; Pi's normal retries and conversation compaction can make additional requests, while background cache warming is disabled. Provider error text is withheld from the parent result, but saved worker history still follows Pi's normal persistence behavior and should be treated as private.
+
+This extension is currently available from the source checkout; a packaged release is not available yet.
 
 ## Mantis and upstream Pi
 

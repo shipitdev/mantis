@@ -53,6 +53,12 @@ jobs:
       - name: Check project
         run: npm run check
 
+      - name: Check Mantis extensions
+        run: |
+          node node_modules/@biomejs/biome/bin/biome check --error-on-warnings --config-path mantis-layer/biome.layer.json mantis-layer/*.ts mantis-layer/extensions/*.ts
+          node node_modules/typescript/bin/tsc --noEmit -p mantis-layer/tsconfig.json
+          node node_modules/vitest/dist/cli.js --run --config mantis-layer/vitest.config.ts
+
       - name: Run focused tests
         run: |
           node --test mantis-layer/*.test.mjs

@@ -1,0 +1,8 @@
+{
+	"extends": "../tsconfig.json",
+	"include": [
+		"vitest.config.ts",
+		"extensions/**/*.ts",
+		"../packages/coding-agent/src/**/*.d.ts"
+	]
+}
